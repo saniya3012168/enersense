@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EnerSense AI Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #e6f4ea, #f5fcf1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0px 6px 12px rgba(0, 128, 0, 0.15);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #14532d;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            margin-top: 15px;
+            color: #2e7d32;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #a5d6a7;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background-color: #f1f8f2;
+        }
+
+        input[type="submit"] {
+            margin-top: 25px;
+            width: 100%;
+            background-color: #43a047;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #388e3c;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Energy Consumption Predictor</h2>
+        <form action="/predict_ui" method="post">
+            <label for="temperature">Temperature:</label>
+            <input type="number" step="0.1" name="temperature" required>
+
+            <label for="humidity">Humidity:</label>
+            <input type="number" step="0.1" name="humidity" required>
+
+            <label for="solar">Solar Irradiance:</label>
+            <input type="number" step="1" name="solar" required>
+
+            <label for="appliances">Appliances:</label>
+            <input type="number" step="1" name="appliances" required>
+
+            <label for="income">Income:</label>
+            <input type="number" step="0.1" name="income" required>
+
+            <input type="submit" value="Predict Consumption">
+        </form>
+    </div>
+</body>
+
+</html>
