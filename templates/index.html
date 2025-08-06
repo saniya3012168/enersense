@@ -1,1 +1,23 @@
-
+<!DOCTYPE html>
+<html>
+<head><title>EnerSense - Light UI</title></head>
+<body style="font-family:Arial;">
+    <h2>EnerSense - Smart Energy Prediction</h2>
+    <form action="/predict" method="post">
+        <input name="temperature" placeholder="Temperature (°C)" required>
+        <input name="humidity" placeholder="Humidity (%)" required>
+        <input name="solar" placeholder="Solar (W/m²)" required>
+        <input name="appliances" placeholder="Appliances" required>
+        <input name="income" placeholder="Income" required>
+        <button type="submit">Predict</button>
+    </form>
+    {% if result %}
+    <p><strong>Predicted Energy:</strong> {{ result }} kWh</p>
+    {% endif %}
+    <hr>
+    <a href="/history">View History</a> |
+    <a href="/summary">Monthly Summary</a> |
+    <a href="/solar-now">Solar Now</a> |
+    <a href="/model-info">Model Info</a>
+</body>
+</html>

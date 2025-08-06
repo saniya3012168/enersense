@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head><title>Prediction History</title></head>
+<body>
+    <h2>Prediction History (Google Sheets)</h2>
+    <table border="1">
+        <tr>
+            {% for key in records[0].keys() %}
+            <th>{{ key }}</th>
+            {% endfor %}
+        </tr>
+        {% for row in records %}
+        <tr>
+            {% for value in row.values() %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <br><a href="/">Back to Home</a> |
+    <a href="/download">Download CSV</a>
+</body>
+</html>
