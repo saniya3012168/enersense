@@ -1,9 +1,6 @@
 flask
-pandas
-joblib
-scikit-learn
-gspread
 gunicorn
-oauth2client
+numpy
+pandas
+scikit-learn
 pulp
-
