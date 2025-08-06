@@ -3,5 +3,6 @@ pandas
 joblib
 scikit-learn
 gspread
-guricorn
+gunicorn
 oauth2client
+
