@@ -45,3 +45,11 @@ def optimize():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route('/')
+def home():
+    try:
+        return render_template("index.html")
+    except Exception as e:
+        return f"<h2>Error loading home: {e}</h2>"
+
