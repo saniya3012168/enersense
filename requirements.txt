@@ -5,3 +5,4 @@ oauth2client
 pandas
 scikit-learn
 numpy
+pulp
