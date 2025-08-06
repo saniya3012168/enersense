@@ -1,12 +1,21 @@
+import os
+import base64
+import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-# Setup auth
+def load_credentials_from_env():
+    encoded = os.environ.get("GOOGLE_CREDENTIALS_BASE64")
+    if not encoded:
+        raise ValueError("Missing GOOGLE_CREDENTIALS_BASE64 env variable")
+    decoded = base64.b64decode(encoded).decode("utf-8")
+    return json.loads(decoded)
+
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+creds_dict = load_credentials_from_env()
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
-# Connect to sheet
 sheet = client.open("EnerSense Load Data").worksheet("PredictionLogs")
 
 def log_prediction_to_sheet(data):
@@ -22,5 +31,4 @@ def log_prediction_to_sheet(data):
     ])
 
 def get_predictions_from_sheet():
-    records = sheet.get_all_records()
-    return records
+    return sheet.get_all_records()
