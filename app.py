@@ -74,5 +74,13 @@ def compare():
     predictions = [float(r['predicted_kWh']) for r in records]
     actuals = [float(r.get('actual_kWh', 0)) for r in records]  # fallback to 0 if not present
     return render_template("compare_chart.html", timestamps=timestamps, predictions=predictions, actuals=actuals)
+    
+@app.route('/charts')
+def charts():
+    records = get_predictions_from_sheet()
+    timestamps = [r['timestamp'] for r in records]
+    predictions = [float(r['predicted_kWh']) for r in records]
+    return render_template("chart_dashboard.html", timestamps=timestamps, predictions=predictions)
+
 
 
