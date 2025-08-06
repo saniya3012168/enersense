@@ -5,4 +5,5 @@ scikit-learn
 gspread
 gunicorn
 oauth2client
+pulp
 
