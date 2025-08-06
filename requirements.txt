@@ -1,0 +1,6 @@
+flask
+pandas
+joblib
+scikit-learn
+gspread
+oauth2client
