@@ -11,9 +11,13 @@ def load_credentials_from_env():
         raise ValueError("Missing GOOGLE_CREDENTIALS_BASE64 environment variable")
 
     # Decode Base64 back to JSON dictionary
-    decoded = base64.b64decode(encoded).decode("utf-8")
-    creds_dict = json.loads(decoded)
-    return creds_dict
+    try:
+        # FIX: decode using utf-8-sig to handle BOM issues safely
+        decoded = base64.b64decode(encoded).decode("utf-8-sig")
+        creds_dict = json.loads(decoded)
+        return creds_dict
+    except Exception as e:
+        raise ValueError(f"Failed to load credentials from env: {e}")
 
 # Setup the scope and credentials
 scope = [
@@ -24,7 +28,10 @@ credentials = ServiceAccountCredentials.from_json_keyfile_dict(load_credentials_
 client = gspread.authorize(credentials)
 
 # Connect to the Google Sheet and worksheet
-sheet = client.open("EnerSense Load Data").worksheet("PredictionLogs")
+try:
+    sheet = client.open("EnerSense Load Data").worksheet("PredictionLogs")
+except Exception as e:
+    raise RuntimeError(f"Failed to connect to Google Sheet: {e}")
 
 def log_prediction_to_sheet(data):
     sheet.append_row([
