@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction vs Actual Comparison</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="font-family: Arial, sans-serif; padding: 20px;">
+    <h2>🔍 Predicted vs Actual Energy Consumption</h2>
+    <canvas id="comparisonChart" width="700" height="350"></canvas>
+
+    <script>
+        const ctx = document.getElementById('comparisonChart').getContext('2d');
+        const comparisonChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ timestamps|safe }},
+                datasets: [
+                    {
+                        label: 'Predicted kWh',
+                        data: {{ predictions|safe }},
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Actual kWh',
+                        data: {{ actuals|safe }},
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'kWh'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Timestamp'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <br>
+    <a href="/">← Back to Home</a>
+</body>
+</html>
