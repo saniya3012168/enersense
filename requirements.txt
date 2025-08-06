@@ -1,6 +1,7 @@
 flask
 gunicorn
-numpy
+gspread
+oauth2client
 pandas
 scikit-learn
-pulp
+numpy
