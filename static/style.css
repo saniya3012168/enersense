@@ -1,57 +1,61 @@
-/* Global styles */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f9f9f9;
-    color: #222;
+/* Reset basic styles */
+* {
+    box-sizing: border-box;
     margin: 0;
-    padding: 30px;
-    line-height: 1.6;
+    padding: 0;
 }
 
-/* Headings */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f7fa;
+    color: #333;
+    line-height: 1.6;
+    padding: 30px;
+}
+
+/* Headers */
 h1, h2, h3 {
     color: #007acc;
     margin-bottom: 20px;
+    text-align: center;
 }
 
-/* Form layout */
+/* Forms */
 form {
-    background: #fff;
-    padding: 20px;
-    margin-bottom: 30px;
+    background: #ffffff;
+    padding: 25px;
+    margin: 0 auto 30px auto;
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    max-width: 500px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    max-width: 600px;
 }
 
-/* Input fields */
 input, select, button {
     display: block;
     width: 100%;
-    margin: 10px 0 15px;
-    padding: 10px;
+    margin: 12px 0 20px;
+    padding: 12px;
     font-size: 16px;
     border: 1px solid #ccc;
     border-radius: 6px;
+    transition: border 0.2s ease;
 }
 
-/* Button styling */
-button, .button {
+input:focus, select:focus {
+    border-color: #007acc;
+    outline: none;
+}
+
+button {
     background-color: #007acc;
     color: white;
     font-weight: bold;
+    border: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    border: none;
-    text-align: center;
-    text-decoration: none;
-    padding: 10px 16px;
-    display: inline-block;
-    border-radius: 6px;
-    margin-top: 10px;
 }
 
-button:hover, .button:hover {
+button:hover {
     background-color: #005fa3;
 }
 
@@ -66,53 +70,43 @@ a:hover {
     text-decoration: underline;
 }
 
-/* Table styling */
+/* Tables */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
     background: #fff;
     border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 3px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
 }
 
 table th, table td {
-    padding: 12px;
-    border: 1px solid #ddd;
+    padding: 14px;
+    border: 1px solid #e0e0e0;
     text-align: center;
+    font-size: 15px;
 }
 
 table th {
-    background-color: #f2f2f2;
-    font-weight: bold;
+    background-color: #e8f4fc;
+    font-weight: 600;
 }
 
-/* Chart container */
+/* Charts */
 .chart-container {
+    max-width: 800px;
+    margin: 40px auto;
     background: #fff;
-    padding: 20px;
+    padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.06);
-    margin-top: 20px;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Responsive support */
-@media (max-width: 768px) {
-    body {
-        padding: 20px;
-    }
-
-    form, .chart-container {
-        width: 100%;
-        padding: 15px;
-    }
-
-    table th, table td {
-        padding: 8px;
-        font-size: 14px;
-    }
+/* Footer or small print */
+small {
+    display: block;
+    text-align: center;
+    margin-top: 30px;
+    color: #888;
 }
