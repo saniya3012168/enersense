@@ -34,6 +34,7 @@ def predict():
     df["Income"] = float(form['income'])
 
     prediction = model.predict(df[["Temperature", "Humidity", "Solar", "Appliances", "Income"]])[0]
+    
     log = {
         "timestamp": str(datetime.datetime.now()),
         "temperature": df["Temperature"].iloc[0],
@@ -42,7 +43,7 @@ def predict():
         "appliances": df["Appliances"].iloc[0],
         "income": df["Income"].iloc[0],
         "predicted_kWh": round(prediction, 2),
-        "actual_kWh": ""  # optional field
+        "actual_kWh": ""  # Optional
     }
     prediction_logs.append(log)
 
@@ -54,8 +55,11 @@ def history():
 
 @app.route('/summary')
 def summary():
+    if not prediction_logs:
+        return "<h3>No predictions available.</h3>"
+
     total_kwh = sum(float(r["predicted_kWh"]) for r in prediction_logs)
-    total_cost = round(total_kwh * 6.5, 2)  # ₹6.5 per kWh
+    total_cost = round(total_kwh * 6.5, 2)
     return f"<h3>Total Predicted Energy: {round(total_kwh, 2)} kWh<br>Total Estimated Cost: ₹{total_cost}</h3>"
 
 @app.route('/download')
@@ -77,28 +81,40 @@ def download():
 
 @app.route('/solar-now')
 def solar_now():
-    solar = forecast_solar_generation()[0]
-    return render_template("solar_now.html", solar=round(solar, 2))
+    try:
+        solar = forecast_solar_generation()[0]
+        return render_template("solar_now.html", solar=round(solar, 2))
+    except Exception as e:
+        return f"<h3>Error forecasting solar generation: {e}</h3>"
 
 @app.route('/model-info')
 def model_info():
-    from sklearn.metrics import mean_squared_error, r2_score
-    X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
-    y = data["Energy_kWh"]
-    y_pred = model.predict(X)
-    r2 = r2_score(y, y_pred)
-    mse = mean_squared_error(y, y_pred)
-    return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
+    try:
+        from sklearn.metrics import mean_squared_error, r2_score
+        X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
+        y = data["Energy_kWh"]
+        y_pred = model.predict(X)
+        r2 = r2_score(y, y_pred)
+        mse = mean_squared_error(y, y_pred)
+        return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
+    except Exception as e:
+        return f"<h3>Error calculating model info: {e}</h3>"
 
 @app.route('/compare')
 def compare():
+    if not prediction_logs:
+        return "<h3>No data to compare.</h3>"
+
     timestamps = [r['timestamp'] for r in prediction_logs]
     predictions = [float(r['predicted_kWh']) for r in prediction_logs]
-    actuals = [float(r.get('actual_kWh', 0)) if r.get('actual_kWh') else 0 for r in prediction_logs]
+    actuals = [float(r.get('actual_kWh') or 0) for r in prediction_logs]
     return render_template("compare_chart.html", timestamps=timestamps, predictions=predictions, actuals=actuals)
 
 @app.route('/charts')
 def charts():
+    if not prediction_logs:
+        return "<h3>No data to visualize.</h3>"
+
     timestamps = [r['timestamp'] for r in prediction_logs]
     predictions = [float(r['predicted_kWh']) for r in prediction_logs]
     return render_template("chart_dashboard.html", timestamps=timestamps, predictions=predictions)
