@@ -1,25 +1,56 @@
 <!DOCTYPE html>
-<html>
-<head><title>Prediction History</title></head>
-<body>
-    <h2>Prediction History (Google Sheets)</h2>
-    <table border="1">
-        <tr>
-            {% for key in records[0].keys() %}
-            <th>{{ key }}</th>
-            {% endfor %}
-        </tr>
-        {% for row in records %}
-        <tr>
-            {% for value in row.values() %}
-            <td>{{ value }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-    </table>
-    <br><a href="/">Back to Home</a> |
-    <a href="/download">Download CSV</a>
-    <a href="/charts">📊 View Energy Chart</a>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Prediction History - EnerSense</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">📊 Prediction History</h2>
+
+        {% if records %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Temperature</th>
+                        <th>Humidity</th>
+                        <th>Solar</th>
+                        <th>Appliances</th>
+                        <th>Income</th>
+                        <th>Predicted kWh</th>
+                        <th>Actual kWh</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td>{{ r.timestamp }}</td>
+                        <td>{{ r.temperature }}</td>
+                        <td>{{ r.humidity }}</td>
+                        <td>{{ r.solar }}</td>
+                        <td>{{ r.appliances }}</td>
+                        <td>{{ r.income }}</td>
+                        <td>{{ r.predicted_kWh }}</td>
+                        <td>{{ r.actual_kWh }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+            <div class="alert alert-info text-center">No prediction records yet.</div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary">🔙 Back to Home</a>
+            <a href="/download" class="btn btn-success ms-2">⬇️ Download CSV</a>
+        </div>
+    </div>
+
 </body>
 </html>
