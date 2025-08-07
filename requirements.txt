@@ -1,8 +1,8 @@
 flask
-gunicorn
-gspread
-oauth2client
-pandas
 scikit-learn
+pandas
 numpy
 pulp
+gunicorn
+
+
