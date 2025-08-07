@@ -1,12 +1,18 @@
 from flask import Flask, request, jsonify, render_template, send_file
-from enersense import generate_synthetic_data, train_consumption_model, forecast_solar_generation, optimize_grid
+from enersense import (
+    generate_synthetic_data,
+    train_consumption_model,
+    forecast_solar_generation,
+    optimize_grid
+)
+from agent import run_energy_agent
 import datetime
 import io
 import csv
 
 app = Flask(__name__)
 
-# Train model on startup
+# Generate data and train model
 data = generate_synthetic_data()
 model = train_consumption_model(data)
 
@@ -28,9 +34,7 @@ def predict():
     df["Income"] = float(form['income'])
 
     prediction = model.predict(df[["Temperature", "Humidity", "Solar", "Appliances", "Income"]])[0]
-
-    # Log to in-memory list
-    log_entry = {
+    log = {
         "timestamp": str(datetime.datetime.now()),
         "temperature": df["Temperature"].iloc[0],
         "humidity": df["Humidity"].iloc[0],
@@ -38,9 +42,9 @@ def predict():
         "appliances": df["Appliances"].iloc[0],
         "income": df["Income"].iloc[0],
         "predicted_kWh": round(prediction, 2),
-        "actual_kWh": ""  # Optional for now
+        "actual_kWh": ""  # optional field
     }
-    prediction_logs.append(log_entry)
+    prediction_logs.append(log)
 
     return render_template("index.html", result=round(prediction, 2))
 
@@ -51,21 +55,25 @@ def history():
 @app.route('/summary')
 def summary():
     total_kwh = sum(float(r["predicted_kWh"]) for r in prediction_logs)
-    total_cost = round(total_kwh * 6.5, 2)
+    total_cost = round(total_kwh * 6.5, 2)  # ₹6.5 per kWh
     return f"<h3>Total Predicted Energy: {round(total_kwh, 2)} kWh<br>Total Estimated Cost: ₹{total_cost}</h3>"
 
 @app.route('/download')
 def download():
+    if not prediction_logs:
+        return "No data to download", 404
+
     output = io.StringIO()
-    writer = csv.DictWriter(output, fieldnames=[
-        "timestamp", "temperature", "humidity", "solar", "appliances", "income", "predicted_kWh", "actual_kWh"
-    ])
+    writer = csv.DictWriter(output, fieldnames=prediction_logs[0].keys())
     writer.writeheader()
     writer.writerows(prediction_logs)
-    output.seek(0)
 
-    return send_file(io.BytesIO(output.getvalue().encode()), mimetype='text/csv',
-                     download_name='prediction_logs.csv', as_attachment=True)
+    return send_file(
+        io.BytesIO(output.getvalue().encode()),
+        mimetype='text/csv',
+        download_name='prediction_logs.csv',
+        as_attachment=True
+    )
 
 @app.route('/solar-now')
 def solar_now():
@@ -86,7 +94,7 @@ def model_info():
 def compare():
     timestamps = [r['timestamp'] for r in prediction_logs]
     predictions = [float(r['predicted_kWh']) for r in prediction_logs]
-    actuals = [float(r.get('actual_kWh') or 0) for r in prediction_logs]
+    actuals = [float(r.get('actual_kWh', 0)) if r.get('actual_kWh') else 0 for r in prediction_logs]
     return render_template("compare_chart.html", timestamps=timestamps, predictions=predictions, actuals=actuals)
 
 @app.route('/charts')
@@ -94,9 +102,6 @@ def charts():
     timestamps = [r['timestamp'] for r in prediction_logs]
     predictions = [float(r['predicted_kWh']) for r in prediction_logs]
     return render_template("chart_dashboard.html", timestamps=timestamps, predictions=predictions)
-
-# Energy agent route
-from agent import run_energy_agent
 
 @app.route('/agent-decision', methods=['POST'])
 def agent_decision():
