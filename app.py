@@ -89,16 +89,14 @@ def solar_now():
 
 @app.route('/model-info')
 def model_info():
-    try:
-        from sklearn.metrics import mean_squared_error, r2_score
-        X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
-        y = data["Energy_kWh"]
-        y_pred = model.predict(X)
-        r2 = r2_score(y, y_pred)
-        mse = mean_squared_error(y, y_pred)
-        return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
-    except Exception as e:
-        return f"<h3>Error calculating model info: {e}</h3>"
+    from sklearn.metrics import mean_squared_error, r2_score
+    X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
+    y = data["Energy_kWh"]
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    mse = mean_squared_error(y, y_pred)
+    return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
+
 
 @app.route('/compare')
 def compare():
@@ -127,3 +125,4 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
