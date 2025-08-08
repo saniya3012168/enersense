@@ -2,21 +2,19 @@ from flask import Flask, request, jsonify, render_template, send_file
 from enersense import (
     generate_synthetic_data,
     train_consumption_model,
-    forecast_solar_generation,
-    optimize_grid as base_optimize_grid
+    forecast_solar_generation
 )
 from agent import run_energy_agent
 import datetime
 import io
 import csv
 import pandas as pd
-import numpy as np
 import os
 import logging
-app.logger.setLevel(logging.INFO)
-app.logger.info("Entering /grid-opt route, logs=%d", len(prediction_logs))
 
+# --- Create Flask app first ---
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 
 # Generate data and train model
 data = generate_synthetic_data()
@@ -25,12 +23,11 @@ model = train_consumption_model(data)
 # In-memory storage for predictions
 prediction_logs = []
 
-# Path for community CSV (editable)
+# Path for community CSV
 COMMUNITIES_CSV = os.path.join("data", "communities.csv")
 
-# --- Utility: load community data (editable CSV) ---
+# ---------------- Utility: load community data ----------------
 def load_communities():
-    # If CSV missing, create default
     if not os.path.exists(COMMUNITIES_CSV):
         default = pd.DataFrame([
             {"community": "NorthTown", "population": 1200, "priority_score": 0.7},
@@ -42,38 +39,24 @@ def load_communities():
         default.to_csv(COMMUNITIES_CSV, index=False)
     return pd.read_csv(COMMUNITIES_CSV)
 
-# --- Grid optimization: improved version using forecasts and simple storage model ---
+# ---------------- Grid optimization logic ----------------
 def optimize_grid(total_demand_kwh, available_solar_kwh, storage_capacity_kwh=10, storage_current_kwh=2, cost_grid=0.15, cost_renewable=0.05, loss_factor=0.02):
-    """
-    Simple optimizer:
-      - prefer renewable up to available_solar
-      - use storage if renewable < demand and storage available
-      - remainder from grid
-      - account for line loss by applying loss_factor to grid energy
-    Returns allocation dict + simple recommendations
-    """
     alloc_renewable = min(available_solar_kwh, total_demand_kwh)
     remaining = total_demand_kwh - alloc_renewable
-
     use_storage = min(storage_current_kwh, remaining)
     remaining -= use_storage
-
     from_grid = max(0, remaining)
-
-    # compute losses: assume line loss percentage on grid portion
     loss = from_grid * loss_factor
     delivered_from_grid = from_grid - loss
-
     total_cost = round(cost_renewable * alloc_renewable + cost_grid * from_grid, 3)
 
     recommendations = []
     if alloc_renewable < total_demand_kwh:
-        # encourage shifting high-use tasks to solar peak
         recommendations.append("Shift heavy loads to daylight hours when solar is available.")
     if storage_current_kwh < storage_capacity_kwh:
         recommendations.append("Consider increasing battery storage to store excess solar.")
     if loss > 0.5:
-        recommendations.append("Investigate distribution losses (line upgrades or local microgrids).")
+        recommendations.append("Investigate distribution losses (line upgrades or microgrids).")
 
     return {
         "demand_kWh": round(total_demand_kwh, 3),
@@ -86,13 +69,8 @@ def optimize_grid(total_demand_kwh, available_solar_kwh, storage_capacity_kwh=10
         "recommendations": recommendations
     }
 
-# --- Fair allocation for communities (equity) ---
+# ---------------- Equity allocation logic ----------------
 def allocate_equity(total_available_kwh, communities_df):
-    """
-    Distribute available energy to communities based on priority_score and population.
-    Formula: weight = priority_score * (1 + normalized_population)
-    Then allocate proportionally.
-    """
     pop_norm = (communities_df["population"] - communities_df["population"].min()) / (
         communities_df["population"].max() - communities_df["population"].min() + 1e-9)
     weights = communities_df["priority_score"] * (1 + pop_norm)
@@ -103,38 +81,30 @@ def allocate_equity(total_available_kwh, communities_df):
     result["allocated_kWh"] = allocation.round(3)
     return result
 
-# --- Clean energy recommendations engine (simple rules) ---
+# ---------------- Clean energy recommendation logic ----------------
 def recommend_clean_energy(latest_log=None):
     recs = []
     if latest_log is None and prediction_logs:
         latest_log = prediction_logs[-1]
     if latest_log:
         if latest_log["predicted_kWh"] > 10:
-            recs.append("High consumption detected — consider adding rooftop solar (3-5 kW) and battery storage.")
+            recs.append("High consumption — consider adding rooftop solar (3-5 kW) and battery storage.")
         if latest_log["appliances"] >= 6:
-            recs.append("Many appliances detected — consider smart plugs and load scheduling.")
+            recs.append("Consider smart plugs and load scheduling.")
         if latest_log["income"] and latest_log["income"] < 40000:
-            recs.append("Explore community solar / subsidy programs available in your area.")
+            recs.append("Explore community solar / subsidy programs.")
         if latest_log["solar"] > 3:
-            recs.append("Good solar potential — an inverter upgrade might increase yield.")
+            recs.append("Good solar potential — upgrade inverter to increase yield.")
     else:
-        recs.append("No data yet — make a prediction to get personalized tips.")
-    # general tips
+        recs.append("No data yet — make a prediction for personalized tips.")
     recs.extend([
-        "Use energy-efficient appliances (star-rated).",
-        "Shift washing, dishwashing to midday if you have solar.",
-        "Install programmable thermostats to reduce peak loads."
+        "Use energy-efficient appliances.",
+        "Shift washing/dishwashing to midday if you have solar.",
+        "Install programmable thermostats to cut peak loads."
     ])
-    # dedupe and return
-    seen = set()
-    out = []
-    for r in recs:
-        if r not in seen:
-            out.append(r); seen.add(r)
-    return out
+    return list(dict.fromkeys(recs))  # remove duplicates
 
-# --- Routes ---
-
+# ---------------- Routes ----------------
 @app.route('/')
 def home():
     return render_template("index.html")
@@ -152,16 +122,15 @@ def predict():
     prediction = model.predict(df[["Temperature", "Humidity", "Solar", "Appliances", "Income"]])[0]
     log = {
         "timestamp": str(datetime.datetime.now()),
-        "temperature": round(df["Temperature"].iloc[0],3),
-        "humidity": round(df["Humidity"].iloc[0],3),
-        "solar": round(df["Solar"].iloc[0],3),
+        "temperature": round(df["Temperature"].iloc[0], 3),
+        "humidity": round(df["Humidity"].iloc[0], 3),
+        "solar": round(df["Solar"].iloc[0], 3),
         "appliances": int(df["Appliances"].iloc[0]),
-        "income": round(df["Income"].iloc[0],2),
+        "income": round(df["Income"].iloc[0], 2),
         "predicted_kWh": round(prediction, 2),
-        "actual_kWh": ""  # Optional
+        "actual_kWh": ""
     }
     prediction_logs.append(log)
-
     return render_template("index.html", result=round(prediction, 2))
 
 @app.route('/history')
@@ -170,29 +139,24 @@ def history():
 
 @app.route('/grid-opt')
 def grid_opt():
-    # Use latest prediction as total demand (or fallback)
     if not prediction_logs:
-        return render_template("grid_optimization.html", optimized=None, msg="No prediction available. Make a prediction first.")
+        return render_template("grid_optimization.html", optimized=None, msg="No prediction available.")
     latest = prediction_logs[-1]
     demand = float(latest["predicted_kWh"])
-    # forecast solar (use forecast_solar_generation: expects solar_irradiance)
-    solar_kwh = forecast_solar_generation(latest["solar"])  # returns kWh
+    solar_kwh = forecast_solar_generation(latest["solar"])
     result = optimize_grid(demand, solar_kwh, storage_capacity_kwh=12, storage_current_kwh=3)
-    return render_template("grid_optimization.html", optimized=result, solar_kwh=round(solar_kwh,3), demand=demand)
+    return render_template("grid_optimization.html", optimized=result, solar_kwh=round(solar_kwh, 3), demand=demand)
 
 @app.route('/equity')
 def equity():
-    # calculate available resources as sum of last 5 predictions (example)
     if not prediction_logs:
-        return render_template("equity_dashboard.html", allocations=None, msg="No prediction history yet.")
-    # For demo, available_kwh = total solar produced in last N entries
+        return render_template("equity_dashboard.html", allocations=None, msg="No prediction history.")
     recent = prediction_logs[-10:] if len(prediction_logs) >= 10 else prediction_logs
-    available = sum([r["solar"] * 0.15 * 10 / 1000 for r in recent])  # same formula as forecast -> kWh per 10 m^2 panel
+    available = sum([r["solar"] * 0.15 * 10 / 1000 for r in recent])
     communities = load_communities()
     allocation_df = allocate_equity(available, communities)
-    # convert to records
     allocations = allocation_df.to_dict(orient="records")
-    return render_template("equity_dashboard.html", allocations=allocations, available=round(available,3))
+    return render_template("equity_dashboard.html", allocations=allocations, available=round(available, 3))
 
 @app.route('/recommendations')
 def clean_energy():
@@ -213,18 +177,13 @@ def download():
 
 @app.route('/model-info')
 def model_info():
-    try:
-        from sklearn.metrics import mean_squared_error, r2_score
-        X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
-        y = data["Consumption"] if "Consumption" in data.columns else data.get("Energy_kWh", data.iloc[:,0])
-        # if y is not present use synthetic target from generate_synthetic_data() sample
-        y = data["Consumption"] if "Consumption" in data.columns else data.iloc[:,0]
-        y_pred = model.predict(X)
-        r2 = r2_score(y, y_pred)
-        mse = mean_squared_error(y, y_pred)
-        return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
-    except Exception as e:
-        return f"<h3>Error calculating model info: {e}</h3>"
+    from sklearn.metrics import mean_squared_error, r2_score
+    X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
+    y = data["Energy_kWh"] if "Energy_kWh" in data.columns else data.iloc[:, 0]
+    y_pred = model.predict(X)
+    r2 = r2_score(y, y_pred)
+    mse = mean_squared_error(y, y_pred)
+    return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
 
 @app.route('/charts')
 def charts():
@@ -247,4 +206,3 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
-
