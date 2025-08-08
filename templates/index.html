@@ -1,87 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>EnerSense | Smart Energy Prediction</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Custom CSS -->
-  <style>
-    body {
-      background-color: #f9f9f9;
-      font-family: 'Segoe UI', sans-serif;
-    }
-    .container {
-      max-width: 700px;
-      margin-top: 60px;
-      background: #fff;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
-    }
-    h2 {
-      margin-bottom: 30px;
-      color: #007bff;
-    }
-    .form-label {
-      font-weight: 500;
-    }
-    .btn-primary {
-      width: 100%;
-    }
-    .result-box {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #28a745;
-      text-align: center;
-    }
-    .nav-link {
-      margin: 10px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <title>EnerSense - Smart Energy Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
-    <h2 class="text-center">EnerSense Energy Predictor</h2>
-    <form method="POST" action="/predict">
-      <div class="mb-3">
-        <label for="temperature" class="form-label">Temperature (°C)</label>
-        <input type="number" class="form-control" name="temperature" step="0.1" required>
-      </div>
-      <div class="mb-3">
-        <label for="humidity" class="form-label">Humidity (%)</label>
-        <input type="number" class="form-control" name="humidity" step="0.1" required>
-      </div>
-      <div class="mb-3">
-        <label for="solar" class="form-label">Solar Input (W/m²)</label>
-        <input type="number" class="form-control" name="solar" step="0.1" required>
-      </div>
-      <div class="mb-3">
-        <label for="appliances" class="form-label">Appliances (count)</label>
-        <input type="number" class="form-control" name="appliances" required>
-      </div>
-      <div class="mb-3">
-        <label for="income" class="form-label">Monthly Income (₹)</label>
-        <input type="number" class="form-control" name="income" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Predict Energy Usage</button>
-    </form>
 
-    {% if result %}
-      <div class="result-box">
-        Predicted Energy Consumption: <strong>{{ result }} kWh</strong>
-      </div>
-    {% endif %}
+<div class="container py-4">
+    <header class="mb-4 text-center">
+        <h1 class="text-primary fw-bold">⚡ EnerSense</h1>
+        <p class="text-muted">AI-Powered Energy Prediction, Optimization & Sustainability</p>
+    </header>
 
-    <div class="mt-4 text-center">
-      <a href="/history" class="btn btn-outline-secondary nav-link">Prediction History</a>
-      <a href="/charts" class="btn btn-outline-secondary nav-link">Charts</a>
-      <a href="/summary" class="btn btn-outline-secondary nav-link">Summary</a>
+    <!-- Navigation Buttons -->
+    <div class="d-flex flex-wrap gap-2 justify-content-center mb-4">
+        <a href="/history" class="btn btn-outline-secondary">Prediction History</a>
+        <a href="/charts" class="btn btn-outline-info">Charts</a>
+        <a href="/compare" class="btn btn-outline-warning">Compare Predictions</a>
+        <a href="/grid-optimization" class="btn btn-outline-success">Grid Optimization</a>
+        <a href="/equity-dashboard" class="btn btn-outline-primary">Equity Dashboard</a>
+        <a href="/clean-energy" class="btn btn-outline-success">Clean Energy Tips</a>
+        <a href="/model-info" class="btn btn-outline-dark">Model Info</a>
     </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Prediction Form -->
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-3 text-primary">Energy Consumption Prediction</h4>
+        <form method="POST" action="/predict">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Temperature (°C)</label>
+                    <input type="number" step="0.1" name="temperature" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Humidity (%)</label>
+                    <input type="number" step="0.1" name="humidity" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Solar Generation (kW)</label>
+                    <input type="number" step="0.1" name="solar" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Number of Appliances</label>
+                    <input type="number" name="appliances" class="form-control" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Household Income (₹)</label>
+                    <input type="number" step="0.1" name="income" class="form-control" required>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary w-100">Predict Energy Usage</button>
+            </div>
+        </form>
+
+        {% if result %}
+            <div class="alert alert-success mt-4 text-center">
+                <strong>Predicted Consumption:</strong> {{ result }} kWh
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- CSV Download -->
+    <div class="mt-4 text-center">
+        <a href="/download" class="btn btn-outline-secondary">⬇ Download Predictions CSV</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
