@@ -1,8 +1,11 @@
-flask
-scikit-learn
+pulp
+Flask
 pandas
 numpy
-pulp
+scikit-learn
 gunicorn
+matplotlib  
+
+
 
 
