@@ -137,7 +137,7 @@ def predict():
 def history():
     return render_template("dashboard.html", records=prediction_logs)
 
-@app.route('/grid-opt')
+'''@app.route('/grid-opt')
 def grid_opt():
     if not prediction_logs:
         return render_template("grid_optimization.html", optimized=None, msg="No prediction available.")
@@ -145,7 +145,7 @@ def grid_opt():
     demand = float(latest["predicted_kWh"])
     solar_kwh = forecast_solar_generation(latest["solar"])
     result = optimize_grid(demand, solar_kwh, storage_capacity_kwh=12, storage_current_kwh=3)
-    return render_template("grid_optimization.html", optimized=result, solar_kwh=round(solar_kwh, 3), demand=demand)
+    return render_template("grid_optimization.html", optimized=result, solar_kwh=round(solar_kwh, 3), demand=demand)'''
 
 @app.route('/equity')
 def equity():
@@ -206,3 +206,4 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
