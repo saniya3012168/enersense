@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Equity Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h2>Equity Dashboard</h2>
+  {% if msg %}
+    <p>{{ msg }}</p>
+    <a class="button" href="/">Back</a>
+  {% else %}
+    <p>Available kWh for allocation: <strong>{{ available }}</strong></p>
+    <table>
+      <thead>
+        <tr><th>Community</th><th>Population</th><th>Priority</th><th>Allocated kWh</th></tr>
+      </thead>
+      <tbody>
+      {% for a in allocations %}
+        <tr>
+          <td>{{ a.community }}</td>
+          <td>{{ a.population }}</td>
+          <td>{{ a.priority_score }}</td>
+          <td>{{ a.allocated_kWh }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <a class="button" href="/">Back</a>
+  {% endif %}
+</body>
+</html>
