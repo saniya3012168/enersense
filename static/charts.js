@@ -1,45 +1,34 @@
-/**
- * EnerSense Chart.js Utility
- * Reusable chart rendering function for line, bar, and mixed charts.
- * 
- * Author: EnerSense Dev
- */
-
-function renderChart(canvasId, chartType, labels, datasets, options = {}) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-
-    return new Chart(ctx, {
-        type: chartType,
+function renderChart(canvasId, labels, data, label, color) {
+    new Chart(document.getElementById(canvasId), {
+        type: 'line',
         data: {
             labels: labels,
-            datasets: datasets
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: color,
+                borderColor: color,
+                fill: false,
+                tension: 0.1
+            }]
         },
-        options: Object.assign({
-            responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: { mode: 'index', intersect: false }
-            },
-            interaction: { mode: 'nearest', axis: 'x', intersect: false },
-            scales: {
-                x: { title: { display: true, text: 'Timestamp' } },
-                y: { title: { display: true, text: 'kWh' }, beginAtZero: true }
-            }
-        }, options)
+        options: { responsive: true, maintainAspectRatio: false }
     });
 }
 
-/**
- * Helper to create styled datasets
- */
-function createDataset(label, data, color, fill = false) {
-    return {
-        label: label,
-        data: data,
-        borderColor: color,
-        backgroundColor: fill ? color.replace('1)', '0.2)') : color,
-        borderWidth: 2,
-        fill: fill,
-        tension: 0.3
-    };
+function renderBarChart(canvasId, labels, data, label, color) {
+    new Chart(document.getElementById(canvasId), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: color,
+                borderColor: color,
+                borderWidth: 1
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
 }
