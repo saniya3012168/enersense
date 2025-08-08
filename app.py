@@ -45,7 +45,7 @@ def predict():
         "appliances": df["Appliances"].iloc[0],
         "income": df["Income"].iloc[0],
         "predicted_kWh": round(prediction, 2),
-        "actual_kWh": ""  # Optional field
+        
     }
     prediction_logs.append(log)
 
@@ -143,3 +143,4 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
