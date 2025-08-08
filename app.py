@@ -208,21 +208,6 @@ def download():
     return send_file(io.BytesIO(output.getvalue().encode()), mimetype='text/csv',
                      download_name='prediction_logs.csv', as_attachment=True)
 
-@app.route('/model-info')
-def model_info():
-    try:
-        from sklearn.metrics import mean_squared_error, r2_score
-        X = data[["Temperature", "Humidity", "Solar", "Appliances", "Income"]]
-        y = data["Consumption"] if "Consumption" in data.columns else data.get("Energy_kWh", data.iloc[:,0])
-        # if y is not present use synthetic target from generate_synthetic_data() sample
-        y = data["Consumption"] if "Consumption" in data.columns else data.iloc[:,0]
-        y_pred = model.predict(X)
-        r2 = r2_score(y, y_pred)
-        mse = mean_squared_error(y, y_pred)
-        return render_template("model_info.html", r2=round(r2, 3), mse=round(mse, 3))
-    except Exception as e:
-        return f"<h3>Error calculating model info: {e}</h3>"
-
 @app.route('/charts')
 def charts():
     timestamps = [r['timestamp'] for r in prediction_logs]
@@ -244,8 +229,8 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
-@app.route('/export-equity.csv')
 
+@app.route('/export-equity.csv')
 def export_equity_csv():
     communities = load_communities()
     available = 100  # you can calculate from predictions
