@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Clean Energy Recommendations</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h2>Clean Energy Recommendations</h2>
+  {% if latest %}
+    <p>Latest prediction: <strong>{{ latest.predicted_kWh }} kWh</strong></p>
+  {% endif %}
+  <ul>
+    {% for r in recommendations %}
+      <li>{{ r }}</li>
+    {% endfor %}
+  </ul>
+  <a class="button" href="/">Back</a>
+</body>
+</html>
