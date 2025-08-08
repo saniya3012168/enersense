@@ -12,6 +12,9 @@ import csv
 import pandas as pd
 import numpy as np
 import os
+import logging
+app.logger.setLevel(logging.INFO)
+app.logger.info("Entering /grid-opt route, logs=%d", len(prediction_logs))
 
 app = Flask(__name__)
 
@@ -244,3 +247,4 @@ def agent_decision():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
