@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Grid Optimization</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<h2>Grid Optimization</h2>
+{% if msg %}
+  <p>{{ msg }}</p>
+{% else %}
+  <canvas id="gridChart" style="max-width:600px;margin:20px auto;"></canvas>
+  <script>
+    const ctx = document.getElementById('gridChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Renewable', 'Storage', 'Grid'],
+        datasets: [{
+          label: 'Energy Allocation (kWh)',
+          data: [
+            {{ optimized.renewable_used_kWh }},
+            {{ optimized.storage_used_kWh }},
+            {{ optimized.grid_used_kWh }}
+          ],
+          backgroundColor: ['#4caf50', '#ffb300', '#f44336']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
+    });
+  </script>
+
+  <h4>Recommendations</h4>
+  <ul>
+    {% for r in optimized.recommendations %}
+      <li>{{ r }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<a class="button" href="/">Back</a>
+</body>
+</html>
